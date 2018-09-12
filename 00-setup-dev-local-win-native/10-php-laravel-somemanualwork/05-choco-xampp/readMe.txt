@@ -1,0 +1,1 @@
+choco install bitnami-xampp --yes --force

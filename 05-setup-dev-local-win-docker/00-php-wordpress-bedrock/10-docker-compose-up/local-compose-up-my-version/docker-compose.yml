@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+
+    mysql:
+        image: mysql:${MYSQL_VERSION}
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        ports:
+            - "${MYSQL_PORT}:${MYSQL_PORT}"
+            
+    adminer:
+        depends_on:
+            - mysql
+        image: adminer
+        ports:
+            - ${ADMINER_PORT}:8080
+      
+    wordpress_bedrock_sage:
+        depends_on:
+            - mysql
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - "${APACHE_PORT}:${APACHE_PORT}"
+        volumes:
+            - ${PROJECT_PATH}:/var/www/html
+            - ./:/tmp/setup
+        environment:
+            WP_ENV: development
+            APACHE_PORT: ${APACHE_PORT}
+            BEDROCK_PATH: ${BEDROCK_PATH}
+            DB_HOST: ${MYSQL_HOST}
+            DB_PORT: ${MYSQL_PORT}
+            DB_NAME: ${MYSQL_DATABASE}
+            DB_USER: ${MYSQL_USER}
+            DB_PASSWORD: ${MYSQL_PASSWORD}
+            DB_PREFIX: wp_
+            ADMINER_PORT: ${ADMINER_PORT}
+            SITE_TITLE: BedrockSourceKraft
+            ADMIN_USER: admin
+            ADMIN_PASS: password
+            ADMIN_EMAIL: test@test.com
+            WP_HOME: http://${APP_URL}:${APACHE_PORT}
+            #Variables related to Laravel
+            LARAVEL_PATH: ${LARAVEL_PATH}
+            APP_URL: http://${APP_URL}:${APACHE_PORT}/lara
+            DB_CONNECTION: mysql
+            DB_HOST: ${MYSQL_HOST}
+            DB_PORT: ${MYSQL_PORT}
+            DB_DATABASE: ${MYSQL_DATABASE}
+            DB_USERNAME: ${MYSQL_USER}
+            DB_PASSWORD: ${MYSQL_PASSWORD}
+            
+    #this container will be used only in the dev environment when using sage theme. 
+    #it will run server using webpack that watch resources file changes and compile them
+    sage_builder:
+        depends_on:
+            - wordpress_bedrock_sage
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        entrypoint: /opt/wait.sh
+        command: npm --prefix=${BEDROCK_PATH}/web/app/themes/sage run start
+        ports:
+            - "3000:3000"
+            - "3001:3001"
+        volumes:
+            - ${PROJECT_PATH}:/var/www/html
+        environment:
+            APACHE_PORT: ${APACHE_PORT}
+            DEVURL: http://${APP_URL}:${APACHE_PORT}
+            
+    #this container will be used only in the dev environment when using laravel. 
+    #it will run server using webpack that watch resources file changes and compile them
+    laravel_mix_builder:
+        depends_on:
+            - wordpress_bedrock_sage
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        entrypoint: /opt/wait.sh
+        command: npm --prefix ${LARAVEL_PATH} run watch-poll
+        volumes:
+            - ${PROJECT_PATH}:/var/www/html
+        environment:
+            APACHE_PORT: ${APACHE_PORT}

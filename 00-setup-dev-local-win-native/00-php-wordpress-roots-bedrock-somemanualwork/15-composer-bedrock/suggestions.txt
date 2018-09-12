@@ -1,0 +1,15 @@
+Bedrock only provides a custom WordPress boilerplate / folder structure leaving all the other stuff on developers (no plugin or theme boilerplates, no APIs for CPTs, etc.)
+
+Plugin boilerplate - https://github.com/getherbert/herbert (docs are here - https://github.com/getherbert/docs)
+
+CPTs 
+
+https://github.com/CMB2/CMB2
+Custom Post Type UI - Get PHP Code - https://wordpress.org/plugins/custom-post-type-ui/
+
+Themes 
+
+Sage - https://roots.io/sage/
+WP-Forget or TotalPress from https://themeawesome.com
+
+generatewp.com - The easiest and fastest way to create custom and high quality code for your WordPress project using the latest WordPress coding standards and API's.

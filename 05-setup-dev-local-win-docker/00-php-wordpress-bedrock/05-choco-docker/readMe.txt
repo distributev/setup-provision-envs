@@ -1,0 +1,1 @@
+choco install docker-for-windows --yes --force

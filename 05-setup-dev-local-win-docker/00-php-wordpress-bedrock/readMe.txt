@@ -1,0 +1,1 @@
+Original Inspiration was from here - https://github.com/distributev/wordpress-laravel-docker-local-cloud/tree/master/local-compose-up

@@ -1,0 +1,34 @@
+FROM wordpress:4.9.8-php7.2-apache
+
+COPY 25-dependencies/*.sh /opt/
+
+RUN apt-get update \
+  && apt-get install -y zip unzip netcat dos2unix \
+  && chmod +x /opt/*.sh \
+  && dos2unix /opt/*.sh \
+  && /opt/composer.sh \
+  && /opt/wpcli.sh \
+  && /opt/gosu.sh \
+  && /opt/nodejs-npm.sh
+  
+ENV APP_PATH /var/www/html
+
+WORKDIR $APP_PATH
+
+# set folder permissions
+RUN chown -R www-data:www-data /var/www && chmod g+s .
+
+ENTRYPOINT ["docker-php-entrypoint"]
+
+COPY 05-wordpress/*.sh /opt/
+COPY 10-bedrock/*.sh /opt/
+COPY 15-sage/*.sh /opt/
+COPY 20-laravel/*.sh /opt/
+
+RUN chmod +x /opt/*.sh \
+  && dos2unix /opt/*.sh
+
+COPY 00-apache/apache-sites.conf /etc/apache2/sites-available/000-default.conf
+COPY 00-apache/apache-ports.conf /etc/apache2/ports.conf
+
+CMD /opt/init.sh && exec apache2-foreground
