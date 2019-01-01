@@ -1,6 +1,6 @@
 pre-requisites (only for Windows)
 
-in "Run as admin" PowerShell execute the command
+start "Run as admin" PowerShell and execute the command
 
 npm install -g windows-build-tools (this will take 30 minutes)
 
